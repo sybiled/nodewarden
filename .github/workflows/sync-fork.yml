@@ -1,0 +1,30 @@
+name: Sync fork with upstream
+
+on:
+  schedule:
+    - cron: '0 3 * * *'        # 每天 03:00 UTC（北京 11:00）
+  workflow_dispatch: {}        # 也可手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Sync from upstream
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
+        with:
+          upstream_repository: shuaiplus/nodewarden
+          upstream_branch: main
+          target_branch: main
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          upstream_pull_args: '--no-edit'
+      - name: Show result
+        run: |
+          git log --oneline -3
+          echo "Fork synced. Cloudflare will auto-deploy if connected."
